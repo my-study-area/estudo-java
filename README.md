@@ -48,7 +48,8 @@ public class AttachCardsToProposalsJob {
 
         for (Proposal proposal : proposals) {
             try {
-                CardDataResponse cardData = cardsClient.findCardByProposalId(proposal.getId());
+                CardDataResponse cardData = cardsClient
+                    .findCardByProposalId(proposal.getId());
                 Card newCard = new Card(cardData);
                 cardRepository.save(newCard);
                 proposal.attachCard(newCard);
@@ -81,7 +82,7 @@ public interface ProposalRepository extends JpaRepository<Proposal, UUID> {
 }
 ```
 
-16:58 e se sua aplicação parar por uma hora e tiver milhares de registros no banco e sua consulta está busca todos os registros do banco `findAllByStatusOrderByCreatedAtAsc`? A memória da palicação irá subir em proporção da quantidade de registro do banco de dados.
+16:58 e se sua aplicação parar por uma hora e tiver milhares de registros no banco de dados e sua consulta está buscando todos os registros  `findAllByStatusOrderByCreatedAtAsc`? A memória da aplicação irá subir em proporção da quantidade de registro do banco de dados.
 
 Primeira otimização, busca top 50 no lugar de busca com todos os registros do banco de dados:
 ```java
@@ -106,11 +107,14 @@ public void execute() {
 
 ```
 
+
+21:25 mesmo após a otimização, o uso de memória continua subindo. Estamo usando o @Transactional do Spring Data que tem o Hibernate com JPA. No ciclo de vida da execução do Job, o EntityManager mantém uma cópia, em cache (cache de primeiro nível), e só é eliminado pelo Garbage Collector no final da execução do Job porque está anotado como @Transactional (long running transacional).
+
 24:00: **long running transactional** fala sobre o @Transactional, onde o EntityManager faz o cache. No loop de 50 itens acaba juntando diversos caches e somente limpa no final das execuções do método anotado com @Transactional.
 
 27:58 **shoting-running transaction**
 
-26:30 com a remoção do @Transactional, cada execução é finalizada, mas ficamos sem o rollback em caso de erro, onde existe diversas operações são processadas. Solução é **controle transacional programático**.
+26:30 com a remoção do @Transactional, cada execução é finalizada, mas ficamos sem o rollback em caso de erro, onde existe diversas operações processadas. Solução é **controle transacional programático**.
 
 ```java
 //TransactionTemplate
@@ -149,7 +153,7 @@ public class AttachCardsToProposalsJob {
 }
 ```
 
-35:00 lock distribuido (zookeeper, redis, mongo),mas já existe esta infraestrutura toda para o projeto? Caso não, pode ser possível utilizar um banco de dados como postgres. 
+35:00 lock distribuido (zookeeper, redis, mongo),mas já existe esta infraestrutura toda para o projeto? Caso não, pode ser possível utilizar um banco de dados como postgres. Vamos utilizar o **lock pessismista**.
 ```java
 package com.example.repositories;
 
@@ -180,7 +184,7 @@ limit 50
 for update
 ```
 
-40:00 processamento paralelo, a solução seria uma fila e um consumidor. Rabit MQ ou Kafka? Já tenho essa infraestrutura? A equipa já domnia a tecnologia? Podemos usar um banco de dados como uma fila.
+40:00 processamento paralelo, a solução seria uma fila e um consumidor. Rabit MQ ou Kafka? Já tenho essa infraestrutura? A equipe já domina a tecnologia? Podemos usar um banco de dados como uma fila.
 ```java
 @QueryHints({
     @QueryHint(
@@ -213,7 +217,7 @@ public void execute() {
 }
 ```
 
-45:11 a aplicação continua demorada com problemas no throughtput, sem considerar outros pontos de gargalos e assumirmos que o problema está no banco de dados, podemos definir batch size. No loop dos registros do banco (top 50), realizamos diversas chamadas ao banco de dados, pode ser este o problema, o gargalo. Ou talvez essa operação no banco de dados nem seja o problema, o problema real é a latência, o tempo de resposta para ir e voltar ao banco de dados.
+45:11 a aplicação continua demorada com problemas no throughtput, sem considerar outros pontos de gargalos e assumirmos que o problema está no banco de dados, podemos definir batch size. No loop dos registros do banco (top 50), realizamos diversas chamadas ao banco de dados, pode ser este o problema, o gargalo. Ou talvez essa operação no banco de dados nem seja o problema, o problema real é a latência, o tempo de resposta para ir e voltar ao banco de dados. Para diminuir esta latência pode-se trabalhar com batch size de 50 propostas (top 50).
 
 
 ```
@@ -239,7 +243,13 @@ Params:
 ('ELIGIBLE_WITH_ATTACHED_CARD', 2024)
 ```
 
-48:40 e se ocorrer erro de integração com os serviços? Gerado por IA:
+48:40 e se ocorrer erro de integração com os serviços? 
+
+- Numa chamada de api fazemos uma espera infinita? **timeout**
+- Erros intermitentes? **retry**
+- posso enviar mais de uma vez uma requisição? **idempotência**
+
+Gerado por IA:
 
 Estamos falando de sistemas distribuídos. Isso significa que, a todo momento, nosso código está se comunicando pela rede — seja para acessar o banco de dados, seja para interagir com sistemas externos, como o sistema da matriz bancária, por exemplo.
 
