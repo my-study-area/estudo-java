@@ -5,7 +5,7 @@ Estudo java
 
 ### Spring Boot: Os desafios do Distributed Scheduling | 🏢 Office Hours 🕑
 - Data do estudo: 29/08/2025
-- Fonte: https://www.youtube.com/watch?v=I_kEO_HPfBU&t=81s&ab_channel=ZupInnovation%3ASuaaliadatechdoagoraaofuturo
+- Fonte: [Youtube](https://www.youtube.com/watch?v=I_kEO_HPfBU&t=81s&ab_channel=ZupInnovation%3ASuaaliadatechdoagoraaofuturo)
 - Apresentado por: Rafael Pontes
 
 Código inicial:
