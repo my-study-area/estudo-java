@@ -206,3 +206,94 @@ java -XX:ReservedCodeCacheSize=28m -XX:+PrintCodeCache main.Main 5000
 jconsole
 java -XX:+PrintCompilation main.Main 5000
 ```
+
+## Section 3: Chapter 3 - Selecting the JVM
+
+### The differences between the 32 bit and 64 bit JVM
+**1. Choice and Prerequisites**
+
+When installing a Java virtual machine (at least on Windows and Linux), there is a choice between a 32-bit or a 64-bit version.
+
+*   If you are running on a 32-bit operating system, you **must** choose the 32-bit version.
+*   If you are running on a 64-bit operating system, you have the option to choose either version.
+
+
+**2. Performance and Memory Implications**
+
+If you have the choice between JVM versions, the decision often depends on the memory requirements of the application:
+
+*   **32-bit Speed Advantage:** If an application requires a **heap size less than three gigabytes**, the 32-bit JVM will likely be faster than the 64-bit JVM.
+*   **Technical Reason:** This speed difference is based on the fact that each pointer to an object in memory will be 32 bits rather than 64 bits, which makes the manipulation of these pointers quicker.
+*   **32-bit Limitations:** To use a 32-bit JVM, the total memory required for the application **must not exceed four gigabytes**. Additionally, if the application is a heavy user of larger numeric types, such as `longs` and `doubles`, the 32-bit JVM might potentially be slower than the 64-bit version.
+*   **64-bit Heap Size:** The maximum heap size on the 64-bit JVM is determined by the operating system. On Windows, this is around 1.2GB.
+*   **Recommendation:** For smaller applications, developers should not simply default to the 64-bit version; they should **test the performance on both 32-bit and 64-bit** to find the better option.
+
+
+**3. Compilers and Application Types**
+
+The choice of JVM bit-version significantly impacts which built-in compilers are available:
+
+| JVM Version | Available Compilers | Compiler Names |
+| :--- | :--- | :--- |
+| **32-bit** | Only C1 | **Client compiler** |
+| **64-bit** | Both C1 and C2 | Client compiler (C1) and **Server compiler (C2)** |
+
+The terms *client* and *server* should be understood in the context of how the application is going to work, not the role of the computer itself.
+
+*   **Client Application:** This is defined as an application that is **short-lived** (it runs a process and then finishes). For client applications, **start-up time is critical**. Because they are short-lived, it is unlikely that many methods will run enough times to justify Tier 4 Native code compilation (C2 compilation).
+*   **Server Application:** This is defined as an application that is **long-running**, such as a web server. For server applications, start-up time is less important, and what becomes more critical is that the application's **performance is optimized over time**.
+
+In summary, for short-running applications that do not have huge memory requirements, the 32-bit JVM (which only uses the client compiler) may well perform better.
+
+
+### Specifying which compiler to use at runtime
+
+```java
+import java.util.Date;
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		Date start = new Date();
+		PrimeNumbers primeNumbers = new PrimeNumbers();
+		Integer max = Integer.parseInt(args[0]);
+		primeNumbers.generateNumbers(max);
+		Date end = new Date();
+		System.out.println("Elapsed time was " + (end.getTime() - start.getTime()) +" ms.");
+	}
+
+}
+```
+
+```bash
+java -XX:+PrintCompilation main.Main 15000
+java -client -XX:+PrintCompilation main.Main 15000
+```
+
+### Turning off tiered compilation
+```bash
+# run using interpreted mode only
+java -XX:-TieredCompilation -XX:+PrintCompilation main.Main 15000
+```
+
+### Tuning native compilation within the Virtual Machine
+```bash
+jinfo -flag CICompilerCount
+
+jps
+
+# 10192 was the id process for eclipse
+jinfo -flag CICompilerCount 10192
+
+java -XX:+PrintCompilation main.Main 5000
+
+java -XX:+PrintCompilation main.Main 15000
+
+java -XX:CICompilerCount=6 -XX:+PrintCompilation main.Main 15000
+
+jinfo -flag CompileThreshold 10192
+
+java -XX:CICompilerCount=6 -XX:CompileThreshold=1000 -XX:+PrintCompilation main.Main 15000
+
+```
+
