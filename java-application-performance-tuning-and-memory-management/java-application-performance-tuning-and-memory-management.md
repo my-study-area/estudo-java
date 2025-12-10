@@ -297,3 +297,25 @@ java -XX:CICompilerCount=6 -XX:CompileThreshold=1000 -XX:+PrintCompilation main.
 
 ```
 
+
+## 📚 Chapter 4 - How memory works - the stack and the heap
+### Introduction - the structure of Java's memory
+Types of memory in JVM: Stack and Heap
+
+
+### How the stack works
+- stack: 
+  - the last item in is the first item out (LIFO)
+  - primitive values like int, float and double 
+  - references variables and methods frames
+
+
+### How the heap works
+- heap:
+  - objects are stored. Like String, INteger and Float
+  - can be accessed by multiple threads
+
+### The heap and the stack together - an example
+
+
+
