@@ -422,4 +422,53 @@ public class FinalObjectMutationExample {
 }
 ```
 
+## Section 6: Chapter 6 - Memory exercise 1
+### 26. Instructions for the exercise
+Open up the **MemoryTest project** – before you run the project, work through the code and **predict the outcome**!
 
+```java
+package main;
+
+public class Main {
+
+	public static void main(String args[]) {
+		Main main = new Main();
+		main.start();
+	}
+	
+	public void start() {
+		String last = "Z";
+		Container container = new Container();
+		container.setInitial("C");
+		another(container,last);
+		System.out.print(container.getInitial());
+	}
+	
+	public void another(Container initialHolder, String newInitial) {
+		newInitial.toLowerCase();
+		initialHolder.setInitial("B");
+		Container initial2 = new Container();
+		initialHolder=initial2;
+		System.out.print(initialHolder.getInitial());
+		System.out.print(newInitial);
+	}
+}
+
+
+package main;
+
+public class Container {
+	private String initial = "A";
+	
+	public String getInitial() {
+		return initial;
+	}
+	
+	public void setInitial(String initial) {
+		this.initial = initial;
+	}
+}
+
+
+```
+### 27. Walkthrough of the solution
