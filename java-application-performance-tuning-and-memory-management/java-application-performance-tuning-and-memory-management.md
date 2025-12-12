@@ -318,4 +318,108 @@ Types of memory in JVM: Stack and Heap
 ### The heap and the stack together - an example
 
 
+## Section 5: Chapter 5 - Passing objects between methods
+
+### 21. What does "passing by value" mean?
+```java
+public class Main {
+
+	
+	public static void calculate(int calcValue) {
+		calcValue = calcValue * 100;
+	}
+	
+	public static void main(String[] args) {
+		int localValue = 5;
+		calculate(localValue);
+		System.out.println(localValue);
+
+	}
+
+}
+```
+
+
+### 22. What does "passing by reference" mean?
+- passing by reference is not allowed in java (byref keyword)
+
+
+### 23. Passing objects into methods
+- for objects passsed into methods, the REFERENCE to object is passed BY VALUE
+
+
+
+### 24. The final keyword and why it's not the same as a constant
+- The real meaning of the final keyword in Java, when applied to variables, is that the variable can only be assigned once. It is the closest feature Java has to a constant
+- A `final` variable can be declared without an initial value and assigned one later, whereas a traditional constant is typically assigned at declaration.
+
+```java
+final Customer c = new Customer("John");
+
+final Customer c;
+c = new Customer("John");
+c = new Customer("Susan");
+```
+
+### 25. Why the final keyword doesn't stop an object's values from being changed
+When the final keyword is applied to a variable holding an object in Java, it prevents the variable (the reference on the stack) from being reassigned to a different object (on the heap), but it does not prevent the object's internal fields from being changed or "mutated". Therefore, although a variable is declared final, its underlying values can potentially be altered, meaning developers should not be fooled into thinking that final objects cannot be changed. This behavior, where the internal state of a referenced object can change, indicates that Java does not provide const correctness, a powerful feature found in other languages that allows the complete and guaranteed fixing of an object's state
+
+
+```java
+// 1. The Customer Class (allowing mutation of its state)
+class Customer {
+    private String name;
+
+    // Constructor
+    public Customer(String initialName) {
+        this.name = initialName;
+    }
+
+    // Method to allow changing the internal state (mutator)
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+
+public class FinalObjectMutationExample {
+
+    public static void main(String[] args) {
+
+        // Declare a variable 'myCustomer' as final
+        // It points to a Customer object named "John"
+        final Customer myCustomer = new Customer("John");
+        System.out.println("1. Initial Customer Name: " + myCustomer.getName());
+
+        // --- Behavior 1: Attempting to Reassign the Reference (FORBIDDEN) ---
+        
+        // The final keyword means the variable on the stack cannot be changed 
+        // to point to a different object in the heap.
+        
+        /*
+        // UNCOMMENTING THIS LINE WILL CAUSE A COMPILER ERROR: 
+        // myCustomer = new Customer("Jane"); 
+        // This is not allowed because the reference variable 'myCustomer' is final.
+        */
+        
+        System.out.println("2. Reassignment of the variable 'myCustomer' is prohibited.");
+
+        // --- Behavior 2: Mutating the Object's Internal State (ALLOWED) ---
+        
+        // We can change the parameters within the object in the heap.
+        // This is perfectly valid Java code; there will be no compiler error.
+        myCustomer.setName("Susan");
+
+        // The object does indeed change its value.
+        System.out.println("3. Mutated Customer Name: " + myCustomer.getName()); 
+        
+        // The output is now "Susan," demonstrating that the internal state changed 
+        // even though the variable 'myCustomer' was declared as final.
+    }
+}
+```
+
 
