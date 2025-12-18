@@ -472,3 +472,412 @@ public class Container {
 
 ```
 ### 27. Walkthrough of the solution
+
+
+## Section 7: Chapter 7 - Escaping References
+### 28. Introduction - what is an escaping reference?
+Escaping references are a potential problem in Java code that occurs when a reference to an object is passed out of the class that was supposed to encapsulate it,. This concept is important for Java programmers to understand, especially in the context of how objects are passed by value.
+
+#### Violation of Encapsulation
+
+The existence of an escaping reference fundamentally **violates the rules of encapsulation**. Encapsulation is a core concept of object-oriented programming, defining the idea that classes contain both data and functionality packaged together, and access to the data within the class must be strictly controlled. When a class is well-defined, the private fields (like `title` or `author` in a `book` class example) are only set via the constructor or specific set methods, making it difficult for values to be accidentally changed from outside the class,.
+
+#### How Escaping References Occur
+
+Escaping references often occur when a method returns an internal, mutable data structure, such as a map or collection,.
+
+1.  **Internal Data:** Consider a `CustomerRecords` class that uses a private map of customer objects internally.
+2.  **The Escape:** If this class includes a `Get customers` method, and that method returns a direct reference to the internal records collection, the reference has escaped,.
+3.  **External Mutation:** The calling code now obtains a reference to the private collection and can perform any modification it wishes. For instance, external code could call the `clear` method on the returned map, removing all records from the customer collection. This modification is typically not intended by the developer of the class, who likely provided the method only for purposes like iterating through the records. By doing this, the class effectively acts as if the internal map were declared as a public variable.
+
+#### Consequences and Impact
+
+The most significant consequence of an escaping reference is that it makes debugging extremely difficult.
+
+*   If the records collection becomes corrupted or invalid values appear, it is hard to determine where in the code the data was changed.
+*   This difficulty arises because **any code anywhere in the project can now access and mutate this collection**.
+
+While avoiding escaping references can require significant effort, and many projects choose not to eliminate them entirely, understanding their potential impact and being able to identify them is critical. Strategies used to avoid them, such as copying collections, sometimes introduce performance considerations that must also be evaluated,.
+
+#### Examples
+Good:
+```java
+public class Book {
+
+    private String title;
+    private String author;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+}
+```
+
+
+bad:
+```java
+public class Customer {
+    private String name;
+    
+    // Construtor
+    public Customer(String name) {
+        this.name = name;
+    }
+
+    // Método que a classe CustomerRecords usa
+    public String getName() {
+        return name;
+    }
+    
+    // Método toString para fácil visualização
+    @Override
+    public String toString() {
+        return "Customer{" + "name='" + name + '\'' + '}';
+    }
+}
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class CustomerRecords {
+
+    // Documentação: Este campo privado armazena os registos de clientes.
+    // Usa um Map onde a chave é o nome do cliente (String) e o valor é o objeto Customer.
+    private Map<String, Customer> records;
+
+    // Documentação: Construtor da classe.
+    // Inicializa o 'records' como um novo HashMap vazio.
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    // Documentação: Adiciona um novo objeto Customer ao mapa 'records'.
+    // Usa o nome do cliente (obtido através de c.getName()) como a chave.
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    // Documentação: Devolve o mapa completo de registos de clientes.
+    // Este é o método destacado na imagem.
+    public Map<String, Customer> getCustomers() {
+        return this.records;
+    }
+}
+
+CustomerRecords records = new CustomerRecords();
+
+Map<String, Customer> myCustomers = records.getCustomers();
+
+myCustomers.clear();
+
+```
+
+### 29. Strategy 1 - using an iterator
+The Solution isn't perfect, but there isn't performance problem:
+```java
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class CustomerRecords implements Iterable<Customer> {
+
+    private Map<String, Customer> records;
+
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    /*
+    public Map<String, Customer> getCustomers() {
+        return this.records;
+    }
+    */
+
+    @Override
+    public Iterator<Customer> iterator() {
+        return records.values().iterator();
+    }
+}
+```
+
+```java
+Iterator<Customer> it = records.iterator();
+it.next();
+it.remove();
+```
+
+
+### 30. Strategy 2 - duplicating collections
+```java
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class CustomerRecords implements Iterable<Customer> {
+
+    private Map<String, Customer> records;
+
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    // Método getCustomers() conforme a imagem image_513ca4.png (Devolvendo uma cópia)
+    public Map<String, Customer> getCustomers() {
+        return new HashMap<>(this.records);
+    }
+
+    @Override
+    public Iterator<Customer> iterator() {
+        return records.values().iterator();
+    }
+}
+
+class Book {
+    
+    private String title;
+    private String author;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+}
+```
+ 
+
+### 31. Strategy 3 - using immutable collections
+- Collections.unmodifiableMap(this.records);
+- Map.copyOf(records);
+```java
+public class CustomerRecords implements Iterable<Customer> {
+
+    private Map<String, Customer> records;
+
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    public Map<String, Customer> getCustomers() {
+        return Map.copyOf(records);
+        // return Collections.unmodifiableMap(this.records);
+    }
+
+    @Override
+    public Iterator<Customer> iterator() {
+        return records.values().iterator();
+    }
+}
+```
+
+
+### 32. Strategy 4 - duplicating objects
+```java
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class CustomerRecords implements Iterable<Customer> {
+
+    private Map<String, Customer> records;
+
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    public Map<String, Customer> getCustomers() {
+        return Map.copyOf(records);
+    }
+
+    @Override
+    public Iterator<Customer> iterator() {
+        return records.values().iterator();
+    }
+
+    public Customer find(String name) {
+        return new Customer(records.get(name));
+    }
+}
+
+class Book {
+
+    private String title;
+    private String author;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+}
+
+import java.util.Iterator;
+
+public class Main {
+    public static void main(String[] args) {
+        CustomerRecords records = new CustomerRecords();
+        
+        records.addCustomer(new Customer("John"));
+        records.addCustomer(new Customer("Simon"));
+        
+        
+        records.find("John").setName("Jane");
+        
+        for (Customer next : records.getCustomers().values())
+        {
+            System.out.println(next);
+        }
+        
+        System.out.println(records.find("John"));
+    }
+}
+```
+
+
+### 33. Strategy 5 - using interfaces to create immutable objects
+```java
+public interface ReadonlyCustomer {
+    String getName();
+    String toString();
+}
+
+public class Customer implements ReadonlyCustomer {
+    private String name;
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Customer(String name) {
+        this.name = name;
+    }
+
+    public Customer(ReadonlyCustomer c) {
+        this.name = c.getName();
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+}
+
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+public class CustomerRecords implements Iterable<Customer> {
+    private Map<String, Customer> records;
+
+    public CustomerRecords() {
+        this.records = new HashMap<String, Customer>();
+    }
+
+    public void addCustomer(Customer c) {
+        this.records.put(c.getName(), c);
+    }
+
+    public Map<String, Customer> getCustomers() {
+        return Map.copyOf(records);
+        //return Collections.unmodifiableMap(records);
+    }
+
+    @Override
+    public Iterator<Customer> iterator() {
+        return records.values().iterator();
+    }
+
+    public ReadonlyCustomer find(String name) {
+        return new Customer(records.get(name));
+    }
+}
+
+import java.util.Iterator;
+
+public class Main {
+
+    public static void main(String[] args) {
+        CustomerRecords records = new CustomerRecords();
+
+        records.addCustomer(new Customer("John"));
+        records.addCustomer(new Customer("Simon"));
+
+        //records.getCustomers().clear();
+
+        ReadonlyCustomer c = records.find("John");
+        Customer customer = (Customer)c;
+        customer.setName("Jane");
+
+        for (ReadonlyCustomer next : records.getCustomers().values())
+        {
+            System.out.println(next);
+        }
+
+        System.out.println(records.find("John"));
+
+        // for (Customer next : records) {
+        //     System.out.println(next);
+        // }
+
+        // Iterator<Customer> it = records.iterator();
+        // it.next();
+        // it.remove();
+
+        // for (Customer next : records) {
+        //     System.out.println(next);
+        // }
+    }
+}
+```
+
+
+### 34. Strategy 6 - using modules to hide the implementation
+- https://www.udemy.com/course/java-application-performance-and-memory-management/learn/lecture/13918208#overview
+
