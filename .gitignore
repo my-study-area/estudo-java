@@ -1,1 +1,8 @@
-java-application-performance-tuning-and-memory-management/PracticalsAndCode
+.idea
+.metadata/
+.settings/
+.project
+.classpath
+target/
+*.class
+.gitignore
