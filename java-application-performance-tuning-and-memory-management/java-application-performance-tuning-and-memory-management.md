@@ -880,4 +880,22 @@ public class Main {
 
 ### 34. Strategy 6 - using modules to hide the implementation
 - https://www.udemy.com/course/java-application-performance-and-memory-management/learn/lecture/13918208#overview
+- [fonte](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2007/)
+
+
+## Section 8: Chapter 8 - Memory Exercise 2
+### 35. Instructions for the exercise
+Memory Exercise 2
+
+In the BookCatalog project:
+- Find and fix the escaping reference in Price
+- Find and fix the escaping reference in BookCollection
+- Find and fix the escaping reference in Book
+- Fix the bug in Price.convert()
+
+[project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2008/BookCatalog/)
+
+
+### 36. Walkthrough of the solution
+[project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2008/BookCatalog/)
 
