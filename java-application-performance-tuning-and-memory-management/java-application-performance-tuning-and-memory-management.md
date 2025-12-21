@@ -899,3 +899,79 @@ In the BookCatalog project:
 ### 36. Walkthrough of the solution
 [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2008/BookCatalog/)
 
+
+
+## Section 9: Chapter 9 - The Metaspace and internal JVM memory optimisations
+### 37. The role of the Metaspace
+Java memory is generally divided into three primary sections: **the stacks, the heap, and the metaspace**. While the internal workings of these areas are highly tuned and complex, understanding their general roles is essential for managing application performance.
+
+#### The Stacks and the Heap
+As established in our conversation history, the stacks are thread-specific areas used for local variables and method execution. In contrast, the **heap is "absolutely huge"** compared to the other two sections and serves as the primary storage area for all objects. Our previous discussion noted that even when a variable is declared `final`, the reference remains on the stack while the object's data on the heap remains mutable.
+
+#### The Metaspace: Metadata and Compilation
+The metaspace is used primarily to store **metadata**. This includes information about classes and methods, such as whether a method has been compiled into bytecode or native machine code. This area is largely out of reach for programmers, but it plays a vital role in how the JVM manages the "tiered compilation" process discussed previously.
+
+#### Static Variables in Metaspace
+The most significant way developers interact with the metaspace is through **static variables**. The metaspace acts similarly to a stack for these variables, but with distinct rules:
+*   **Static Primitives:** These are stored **entirely within the metaspace**.
+*   **Static Objects:** For objects declared as static (such as a `HashMap`), the **reference lives in the metaspace**, but the actual object and its contents reside on the heap.
+*   **Permanence:** Unlike stack variables, which are "popped off" when they go out of scope, variables in the metaspace are **permanent**. They never reach a state where they can no longer be referenced; consequently, any objects on the heap referenced from the metaspace are **never garbage collected**.
+*   **Global Access:** Because every thread and class in a Java program has access to the metaspace, static variables can be accessed from any piece of code in the application.
+
+#### Public vs. Static Variables
+There is often confusion regarding how the `public` keyword affects memory compared to the `static` keyword. 
+*   **Public Variables:** Declaring a variable as public is a matter of **encapsulation and visibility**, not storage. A public variable (that is not static) is still just a reference to an object on the heap, stored in exactly the same way as a private variable. 
+*   **Static Variables:** Only the `static` keyword moves the reference (or the primitive value) into the **metaspace**.
+
+
+
+
+### 38. The PermGen
+- Permanent generation
+
+This document provides a summary of Java's Permanent Generation (PermGen), a memory space that existed in Java Virtual Machine (JVM) versions 7 and earlier. It has since been replaced by MetaSpace starting with Java 8. The primary issue with PermGen was its fixed size, which could lead to `java.lang.OutOfMemoryError: PermGen space` errors when the space became full. These errors were typically resolved by manually increasing the PermGen size using specific JVM flags (`-XX:PermSize` and `-XX:MaxPermSize`).
+
+These flags are now obsolete. If an application previously configured for Java 7 is migrated to a Java 8 or later environment without updating its startup configuration, the JVM will issue a warning that these flags are invalid and are being ignored. The application will still run without error, and it is considered completely safe to remove these legacy flags.
+
+
+
+### 39. Are objects always created on the heap?
+Traditionally, Java was designed to simplify development by mandating that all objects be created on the heap, a large memory area designed for objects with variable lifetimes that may need to be shared across different methods. This contrasts with the stack, a highly efficient memory space where data lifetime is tightly coupled to its code block scope.
+
+The central insight is that while programmers are not given a choice in object placement, modern Java Virtual Machines (JVMs) perform a critical internal optimization. If the JVM detects that a newly created object will not be shared and its use is confined entirely within its creation scope, it may allocate that object on the stack instead of the heap. This automatic optimization leverages the stack's efficiency for short-lived, non-shared objects, delivering potential performance benefits transparently and without any change to the developer's code.
+
+
+### 40. The String Pool
+```java
+public class Main {
+
+    public static void main(String[] args) {
+        String one = "hello";
+        String two = "hello";
+
+        System.out.println(one.equals(two)); //true
+        System.out.println(one == two); //true
+
+        Integer i = 76;
+        String three = i.toString();
+        String four = "76";
+
+        System.out.println(three.equals(four)); //true
+        System.out.println(three == four); //false
+
+    }
+
+}
+```
+
+The comparison `three` == `four` returns **false**. This is because the string `three` was calculated and created as a new object on the heap, while `four` references the object from the String Pool.
+
+Conclusion: "String three has not been placed in the pool because it's been calculated, so it won't be available for reuse." This demonstrates that while the string values are identical, the object references are distinct.
+
+
+
+### 41. Interning Strings
+The primary function of `intern()` is to manually place a calculated string into the JVM's string pool, enabling its reuse and minimizing the creation of duplicate string objects. While Java automatically interns literal strings, the `intern()` method is specifically for strings generated at runtime. The key benefits of this practice are reduced memory consumption and a lower number of objects for the garbage collector to manage. However, this comes at the cost of the performance overhead of executing the `intern()` method itself, making its application most suitable for situations where a calculated string is reused frequently, such as within a loop. A critical evolution in this area occurred with Java 7, which moved the string pool from the Permanent Generation (PermGen) space to the main heap. This change means that interned strings can now be garbage collected if they are no longer referenced, allowing for more dynamic memory management.
+
+
+
