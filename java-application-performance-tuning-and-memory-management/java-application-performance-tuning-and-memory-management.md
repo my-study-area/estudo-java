@@ -975,3 +975,24 @@ The primary function of `intern()` is to manually place a calculated string into
 
 
 
+## Section 10: Chapter 10 - Tuning the JVM's Memory Settings
+### 42. How the string pool is implemented
+
+
+### 43. Understanding the size and density of the string pool
+- -XX: +PrintStringTableStatistics
+- [project link](./PracticalsAndCode/End Of Chapter Workspaces/Chapter 09/ExploringStrings)
+
+
+### 44. Tuning the size of the string pool
+- -XX: +PrintStringTableStatistics -XX: +PrintStringTableSize=120121
+
+
+### 45. Tuning the size of the heap
+- -XX:MaxHeapSize=600m -XX: +PrintStringTableStatistics -XX: +PrintStringTableSize=120121
+- -XX:InitialHeapSize=1b -XX: +PrintStringTableStatistics -XX: +PrintStringTableSize=120121
+- 
+
+### 46. Shortcut syntax for heap tuning flags
+
+
