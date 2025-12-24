@@ -994,5 +994,12 @@ The primary function of `intern()` is to manually place a calculated string into
 - 
 
 ### 46. Shortcut syntax for heap tuning flags
+- -XX: +PrintStringTableStatistics 
+- -XX:PrintStringTableSize=n
 
+- -XX:MaxHeapSize=n (-Xmx)
+- -XX:InitialHeapSize=n (-Xms)
+
+- -XX:UnlockDiagnosticVMOptions
+- -XX: +PrintFlagsFinal 
 
