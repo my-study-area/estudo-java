@@ -1003,3 +1003,37 @@ The primary function of `intern()` is to manually place a calculated string into
 - -XX:UnlockDiagnosticVMOptions
 - -XX: +PrintFlagsFinal 
 
+
+## Section 11: Chapter 11 - Introducing Garbage Collection
+### 47. What it means when we say Java is a managed language
+- Java works out when objects are no longer needed
+- Memory leaks shouldn’t be possible in Java
+- Garbage Collection is the process to free up memory
+
+
+### 48. How Java knows which objects can be removed from the Heap
+- Any object on the heap which cannot be reached through a reference from the stack is "eligible for garbage collection".
+- circular references aren't eligible for garbage collection
+
+
+### 49. The System.gc() method
+- https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/System.html#gc()
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/GarbageCollection)
+- Remember, the GC method is a hint or a suggestion to the virtual machine and there's no guarantee it would have done. In fact, you might have found on your machine that a garbage collection didn't take place.
+
+
+### 50. Java 11's garbage collector can give unused memory back to the operating system
+- Xms300m (VM args) using java 11.
+
+
+### 51. Why it's not a good idea to run the System.gc() method
+
+
+
+### 52. The finalize() method
+- Deprecated since java 9
+
+
+
+### 53. The danger of using finalize()
+- it is a bad practice
