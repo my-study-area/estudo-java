@@ -1037,3 +1037,25 @@ The primary function of `intern()` is to manually place a calculated string into
 
 ### 53. The danger of using finalize()
 - it is a bad practice
+
+
+
+## Section 12: Chapter 12 - Monitoring the Heap
+### 54. What is a soft leak?
+- soft leaks: when anm object remaind regerenced when no longer needed
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2012/SoftLeaks/)
+
+
+
+### 55. Introducing (J)VisualVM
+- https://visualvm.github.io/download.html
+
+
+
+### 56. Monitoring the size of the heap over time
+
+
+
+### 57. Fixing the problem and checking the heap size
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2012/SoftLeaks/)
+
