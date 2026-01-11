@@ -1059,3 +1059,14 @@ The primary function of `intern()` is to manually place a calculated string into
 ### 57. Fixing the problem and checking the heap size
 - [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2012/SoftLeaks/)
 
+
+## Section 13: Chapter 13 - Analysing a heap dump
+### 58. Generating a heap dump
+- -XX:+HeapDumpOnOutOfMemoryError
+- -XX:+HeapDumpPath=someFilePath
+
+
+### 59. Viewing a heap dump
+- Eclipse Memory Analizer (MAT)
+
+
