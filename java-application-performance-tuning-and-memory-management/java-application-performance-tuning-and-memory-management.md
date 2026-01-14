@@ -1070,3 +1070,25 @@ The primary function of `intern()` is to manually place a calculated string into
 - Eclipse Memory Analizer (MAT)
 
 
+## Section 14: Chapter 14 - Generational Garbage Collection
+### 60. How the garbage collector works out what is garbage
+
+
+### 61. Why the heap is divided into generations
+- generation garbage collection
+- young and old generation
+
+
+### 62. The Internals of the Young Generation
+- eden
+- s0
+- s1
+
+### 63. Viewing the generations in VisualVM
+- Tools > PLugins > Available Plugins > visual gc
+
+
+
+### 64. Viewing the heap when there's a soft leak
+
+
