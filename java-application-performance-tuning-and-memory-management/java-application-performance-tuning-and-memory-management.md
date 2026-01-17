@@ -1092,3 +1092,118 @@ The primary function of `intern()` is to manually place a calculated string into
 ### 64. Viewing the heap when there's a soft leak
 
 
+## Section 15: Chapter 15 - Garbage Collector tuning & selection
+### 65. Monitoring garbage collections
+- -verbose=gc
+```java
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+
+    public static void main(String[] args) {
+        List<Customer> customers = new ArrayList<Customer>();
+        while(true) {
+            Customer c = new Customer("Matt");
+            customers.add(c);
+            if (customers.size() > 100)
+                for (int i = 0; i < 10; i++)
+                    customers.remove(0);
+        }
+    }
+
+}
+```
+- -Xmx10m -verbose:gc
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2015/SoftLeaks/src/main/Main.java)
+
+
+### 66. Turning off automated heap allocation sizing
+- -Xmx20m
+- -XX:_UseAdaptiveSizePolicy
+
+```bash
+jps
+jinfo -flag UseAdaptiveSizePolicy 10236
+```
+
+
+### 67. Tuning garbage collection - old and young allocation
+- -XX:NewRatio=n
+
+```bash
+jinfo -flag NewRatio 10236
+```
+- -Xms20m -XX:NewRatio=1
+
+
+### 68. Tuning garbage collection - survivor space allocation
+```bash
+jinfo -flag SurvivorRatio 9004 
+```
+- -XX:SurvivorRatio=8
+- -Xms20m -XX:NewRatio=1 -XX:SurvivorRatio=5
+
+
+### 69. Tuning garbage collection - generations needed to become old
+```bash
+jinfo -flag MaxTenuringThreshold 10940
+- -XX:MaxTenuringThreshold=15
+```
+
+
+### 70. Selecting a garbage collector
+Types of collectors:
+- serial: `-XX:+UseSerialGC`
+- parallel: `-XX:+UseParallelGC`
+- most concurrent: `-XX:+UseConcMarkSweepGC` `-XX:+UseG1GC`
+
+
+
+### 71. The G1 garbage collector
+🏗️ The G1 Collector: Java’s Smart Cleaner
+
+In Java, "Garbage Collection" (GC) is the process of automatically clearing memory by removing data the program no longer needs. The **G1 Collector** is the modern standard because it manages memory like a smart organizer rather than a brute-force cleaner.
+
+#### 1. The Neighborhood Strategy (Regions)
+Imagine the computer’s memory (the **Heap**) as a massive warehouse. Older systems treated it as one giant room. If you needed to clean it, you had to stop everything and sweep the whole floor.
+G1 divides this warehouse into exactly **2,048 small rooms (Regions)**. This allows Java to clean one room at a time without closing the entire warehouse.
+
+#### 2. "Garbage First" Triage
+The name "G1" comes from its main rule: **Clean the dirtiest rooms first.**
+The collector scans the regions and identifies which ones are mostly "garbage" (unused data). By targeting these first, it reclaims a lot of space very quickly. It focuses on high-yield areas to avoid the dreaded "Stop-the-World" pauses where your app freezes.
+
+#### 3. Fluidity and Flexibility
+In G1, rooms are not permanent. A room might hold "new" objects today and "old" objects tomorrow.
+
+* **Eden/Survivor:** Where new data starts.
+* **Old Generation:** Where long-lasting data lives.
+G1 dynamically reassigns these labels to the 2,048 regions based on what your program needs at that exact moment.
+
+#### 4. The "Just Enough" Approach
+Instead of trying to achieve 100% cleanliness and taking a long time, G1 does **Partial Collections**. It cleans just enough regions to keep the app running smoothly. It prioritizes **predictable timing** over total cleanup.
+
+---
+🛠️ How to use it
+
+If you use **Java 11 or newer**, G1 is already active! You can optimize it by telling Java your "time budget" for cleaning:
+
+```bash
+# Tells Java: "Try not to pause my program for more than 200ms"
+java -XX:MaxGCPauseMillis=200 -jar MyProgram.jar
+
+```
+
+
+### 72. Tuning the G1 garbage collector
+- `-XX:ConcGCThreads=n`. Number of the concurrent threads
+- `-XX:InitiatingHeapOccupancyPercent=n`. Start with some percent of the memory
+
+
+### 73. String de-duplication
+- -XX:UseStringDeduplication (only available if using GI)
+- 
+When two strings variables are using the same value, like "One", JVM change the things to the variable to point to the same space allocation in the memory.
+
