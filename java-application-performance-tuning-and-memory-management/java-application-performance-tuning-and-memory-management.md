@@ -1207,3 +1207,45 @@ java -XX:MaxGCPauseMillis=200 -jar MyProgram.jar
 - 
 When two strings variables are using the same value, like "One", JVM change the things to the variable to point to the same space allocation in the memory.
 
+
+## Section 16: Chapter 16 - Using a profiler to analyse application performance
+### 74. Introducing Java Mission Control (JMC)
+- https://jdk.java.net/jmc/8/
+
+
+### 75. Building the JMC binaries
+- https://github.com/openjdk/jmc
+
+
+### 76. Running JMC and connecting to a VM
+- open the JMC and click in the process on the left side
+
+
+### 77. Customising the overview tab
+- click in green plus and search by *eden
+- click in green plus in the top and search by  *sur and go to G1 Survivor Space > PeakUsage > used 
+
+
+### 78. The MBean Browser tab
+
+
+### 79. The System, Memory and Diagnostic Commands tabs
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2016/FibonnaciPrimes/)
+
+
+### 80. Introducing our problem project
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2016/FibonnaciPrimes/)
+- -XX:+UnlockCommercialFeatures -XX:+FlightRecorder
+- -XX:+StartingFlightRecording=delay=2min, duration=60s, name=Test,filename=recording.jfr,settings=profile
+
+
+### 81. Using the flight recorder
+- click right button on My Recording and dump last part
+
+
+### 82. Analyzing a flight recording
+- click in the result to understand
+
+
+### 83. Improving our application
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2016/FibonnaciPrimesImproved/)
