@@ -1249,3 +1249,139 @@ When two strings variables are using the same value, like "One", JVM change the 
 
 ### 83. Improving our application
 - [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2016/FibonnaciPrimesImproved/)
+
+
+## Section 17: Chapter 17 - Assessing Performance
+### 84. Why benchmarking isn't straight forward.
+- microbenchmarking: measuring the performance of a small piece of code
+
+
+### 85. Setting up the code for benchmarking
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2017/Benchmarking/src/main/NumberChecker.java)
+```java
+package main;
+
+public class NumberChecker {
+
+	public Boolean isPrime1(Integer testNumber) {
+		for (Integer i = 2; i < testNumber; i++) {
+			if (testNumber % i == 0) return false;
+		}
+		return true;
+	}
+	
+	public Boolean isPrime2(int testNumber) {
+		int maxToCheck = (int)Math.sqrt(testNumber);
+		for (int i = 2; i <= maxToCheck; i++) {
+			if (testNumber % i == 0) return false;
+		}
+		return true;
+	}
+}
+```
+
+
+### 86. A simple approach to micro-benchmarking
+```java
+package main;
+
+public class Main {
+
+    public static void main(String[] args) {
+        NumberChecker nc = new NumberChecker();
+
+        long start = System.currentTimeMillis();
+
+        for (int i = 1001; i < 2000; i++) {
+            System.out.println(nc.isPrime1(22));
+        }
+
+        long end = System.currentTimeMillis();
+        System.out.println("Time taken " + (end - start) + " ms");
+    }
+}
+```
+
+
+### 87. Adding in a warm-up period
+- `-XX:-TieredCompilation`: diable tired compilation. Normaly JVM uses compilation in level like c1 and c2.
+```java
+package main;
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		NumberChecker nc = new NumberChecker();
+		
+		//warm up period
+		for (int i = 1; i < 10000; i++)
+			nc.isPrime1(i);
+		
+		System.out.println("warmup finished, now measuring");
+		
+		long start = System.currentTimeMillis();
+		
+		for (int i = 1; i < 50000; i++)
+			nc.isPrime1(i);
+		
+		long end = System.currentTimeMillis();
+		System.out.println("Time taken " + (end - start) + " ms");
+
+	}
+
+}
+
+```
+
+### 88. Comparing two code alternatives
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2017/Benchmarking/src/main/Main.java)
+```java
+package main;
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		NumberChecker nc = new NumberChecker();
+		
+		//warm up period
+		for (int i = 1; i < 10000; i++)
+			nc.isPrime2(i);
+		
+		System.out.println("warmup finished, now measuring");
+		
+		long start = System.currentTimeMillis();
+		
+		for (int i = 1; i < 50000; i++)
+			nc.isPrime2(i);
+		
+		long end = System.currentTimeMillis();
+		System.out.println("Time taken " + (end - start) + " ms");
+
+	}
+
+}
+
+```
+- `-XX:+PrintCompilation -XX:CompileThreshold=1000`
+
+
+### 89. Using Macro-benchmarking
+**Study Note: The Optimization Paradox**
+
+#### Core Concept
+The **Optimization Paradox** occurs when improving the execution speed of a specific function (micro-optimization) leads to a decline in the overall application performance (macro-performance). Faster code is not always "better" code if it disrupts the harmony of the entire system.
+
+
+#### Micro vs. Macro Benchmarking
+* **Micro-benchmarking:** Testing a small piece of logic (like a single method) in a controlled, isolated environment. While it provides clean data, it creates a "false sense of security" by ignoring real-world system noise.
+* **Macro-benchmarking:** Measuring performance within the context of the full application. This is the **ultimate arbiter of success** because it accounts for how different parts of the code interact.
+
+
+#### Why "Faster" Code Can Slow Systems Down
+1. **Pressure on Downstream Resources:** When Method A is optimized to run faster, it hits Method B or shared resources (like databases or memory) with much higher frequency. This often shifts the bottleneck or creates a new, more expensive one elsewhere—a "Butterfly Effect" in software.
+2. **JVM Dynamics:** In environments like the Java Virtual Machine (JVM), the system performs runtime optimizations based on actual usage patterns. Micro-benchmarks are often too "sterile" to trigger these realistic optimizations.
+
+
+#### Key Takeaway for Beginners
+True optimization is about **global efficiency**, not local speed. Always validate your "wins" by testing the entire system's throughput. As an engineer, your goal is the harmony of the stack, ensuring that speeding up one component doesn't overwhelm another.
+
