@@ -1385,3 +1385,16 @@ The **Optimization Paradox** occurs when improving the execution speed of a spec
 #### Key Takeaway for Beginners
 True optimization is about **global efficiency**, not local speed. Always validate your "wins" by testing the entire system's throughput. As an engineer, your goal is the harmony of the stack, ensuring that speeding up one component doesn't overwhelm another.
 
+
+## Section 18: Chapter 18 - Benchmarking with JMH
+### 90. Installing the JMH benchmarking tool
+- https://github.com/openjdk/jmh
+
+
+### 91. Creating and running benchmarks
+- java -jar benchmarks.jar
+
+
+### 92. Using different benchmark modes
+- java -jar benchmarks.jar -bm avgt 
+
