@@ -1398,3 +1398,26 @@ True optimization is about **global efficiency**, not local speed. Always valida
 ### 92. Using different benchmark modes
 - java -jar benchmarks.jar -bm avgt 
 
+
+## Section 19: Chapter 19 - Performance and Benchmarking Exercise
+### 93. Instructions for exercise 1 (creating a flight recording)
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2017/FibonnaciPrimesImproved/src/main/Main.java)
+
+
+### 94. Walkthrough of the solution & setting up ready for the next challenge
+- zmc -vm ~/.asdf/shims/java
+
+
+### 95. Instructions for exercise 2 (use JMH to macrobenchmark the project)
+- Create a second version of generateNextPrime using primatvies 
+- Reinstate the original isPrime method, so that there are 2 variants of this method 
+- Create 2 variants of the run-methods so that we can compare isPrime1 + generateNextPrime1 against isPrime2 + generateNextPrime2 
+- Build a jar file containing the code Use JMH to evaluate the macrobenchmark
+
+
+### 96. Walkthrough of the solution - part 1 setting up the code
+
+
+
+### 97. Walkthrough of the solution - part 2 - integrating into JMH
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2018/jmhBenchmarking/)
