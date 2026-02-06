@@ -1421,3 +1421,113 @@ True optimization is about **global efficiency**, not local speed. Always valida
 
 ### 97. Walkthrough of the solution - part 2 - integrating into JMH
 - [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2018/jmhBenchmarking/)
+
+
+
+## Section 20: Chapter 20 - How Lists Work
+### 98. Why it's important to understand how the different List implementations work
+
+
+
+### 99. The 8 different list implementations
+- ArrayList: 
+- CopyOnWriteArrayList
+- LinkedList
+- AttributeList: a child of ArrayList
+- RoleLIst
+- RoleUnresolvedList
+- Stack
+- Vector
+
+
+
+### 100. The CopyOnWriteArrayList
+- https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/concurrent/CopyOnWriteArrayList.html
+- Multi-threaded application
+- Multiple threads accessing the same list
+- Lots of iterations / reads
+- Few writes / additions / deletions
+
+
+### 101. The ArrayList
+Types of List:
+- ArrayList
+- LinkedList
+- Stack
+- Vector
+
+openjdk-11.0.2/lib/java/src.zip/java.base/java/util/ArrayList.java
+
+In Java, an ArrayList is a dynamic data structure that functions as a resizable container for objects, initially allocating space for ten elements in memory. When this capacity is exceeded, the system automatically handles growth by instantiating a larger array and transferring existing data to the new space. Through an examination of the Java source code, specifically the "grow" method, we can see that the internal storage increases by half of its current size using a bitwise right-shift operator. This process ensures the list can expand indefinitely, while the discarded, smaller arrays are efficiently managed by garbage collection. Ultimately, this mechanism provides a flexible way to manage collections of data without the rigid size constraints of a standard array.
+
+
+**Conclusion: Thinking Beyond the Default**    
+The ArrayList is more than a simple container; it is a highly engineered data structure defined by specific mathematical and architectural trade-offs. By understanding the default capacity of ten, the O(n) cost of reference-array copying, and the 1.5x bitwise growth strategy, you can make much more informed decisions.
+The next time you initialize a list where you expect thousands of entries, ask yourself: Should I let Java resize this 20 times, or should I specify an initial capacity to save the CPU from those expensive copy operations? Understanding the mechanics "under the hood" is what separates a coder who just uses the API from an engineer who masters the platform.
+
+
+### 102. Specifying the initial size of an ArrayList
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2020/ListBenchmarking/src/main/Main.java)
+
+When working with Java's ArrayList, the system must frequently reallocate memory and copy data as the list expands, which can significantly hinder application speed. You can prevent this overhead by providing an initial capacity argument to the constructor, ensuring the internal array is large enough to hold your expected data from the start. This optimization minimizes expensive resize operations and reduces the burden on garbage collection, potentially cutting execution time in half for large datasets. While an ArrayList can technically grow to over two billion items, being proactive about its starting size creates a more performant and memory-efficient program.
+
+
+### 103. The Vector
+ Vector class in Java, comparing its architecture and historical significance to the more common ArrayList. While both utilize a resizable internal array for storage, the Vector is a legacy collection maintained primarily for backwards compatibility with the earliest versions of the language. Its primary technical distinction is that it is thread-safe, providing a built-in mechanism for handling concurrent access that the standard ArrayList lacks. However, because this protection introduces a performance cost, the author suggests that developers should only consider the Vector for specific multi-threaded scenarios where it might outperform modern alternatives.
+ 
+
+### 104. The Stack
+- It is a child of Vector
+
+
+### 105. The LinkedList
+A linked list functions as a dynamic sequence of data where items are organized through a web of connections rather than being stored in a rigid array. Each element is housed within a node object, which acts as a container holding the actual data alongside pointers that reference the neighboring nodes. By maintaining links to both the preceding and succeeding items, the structure allows for seamless navigation in either direction and effortless updates. Because the list grows by simply remapping these pointers when new nodes are added, it bypasses the need for the memory-heavy resizing required by traditional array-based systems.
+
+
+### 106. Choosing the optimal list type
+- ArrayList
+  - get ans item in the middle is good. The LinkedList is bad because is necessary to loop every item.
+- LinkedList
+  - adds a item in the end is good. Only adds a item and updates the last node to points to the new item.
+  - adds a item in the beginning is good. Only updates the nodes. In the ArrayList we need mode each element in a new position and after adds the new element.
+
+Summary:    
+Based on the sources, here is a comparison table to help you remember the strengths and weaknesses of **ArrayList** and **LinkedList**:
+
+| Feature/Scenario | **ArrayList** (Good / Bad) | **LinkedList** (Good / Bad) |
+| :--- | :--- | :--- |
+| **Adding to the End** | **Good**: Normally very quick as it just places a pointer in a vacant slot. **Bad**: Can be slow if the array is full and requires a **resizing operation** (creating a new array and copying data). | **Good**: Always quick. Java maintains a reference to the last item, allowing it to go straight there without a performance impact. |
+| **Adding to the Start** | **Bad**: Very expensive for large lists; **every existing item** must be shifted down one space to make room. | **Good**: Excellent performance; it is a simple operation that only requires **updating a pointer**. |
+| **Retrieval (Get Method)** | **Good**: Superior performance for random access. It can jump directly to any position. In a test of 10 million items, this took only **1 millisecond**. | **Bad**: Very slow for items in the middle or end. Java must **manually navigate** through every preceding node. In the same 10-million-item test, this took **125 milliseconds**. |
+| **Removing Items** | **Bad**: Requires **copying and shifting** all subsequent data down one position, creating overhead. | **Good/Bad**: Excellent if removing the **first item**. However, removing an item in the middle can be slow because you must **iterate through the list** to find the item first. |
+| **General Use Case** | **The List of Choice**: Best for scenarios prioritizing **data lookup** and retrieval by position. | **Specialized Use**: Best for scenarios involving frequent **structural changes**, especially at the start or middle of the list. |
+
+
+**Key Takeaway for Memory**
+*   **ArrayList** is like an **organized bookshelf**: you can reach any book immediately if you know its number, but adding a new book at the beginning requires sliding every other book over.
+*   **LinkedList** is like a **treasure hunt**: adding a new clue at the start is easy, but to find the 50th clue, you must follow the trail through the first 49.
+
+
+
+### 107. Sorting lists
+- LinkedList don't have sort methos, so uses sort method from List interface that uses Arrays.sort. It's necessary convert to Array before sort
+- ArrayList has a sort method and uses Arrays.sort
+
+Certainly! Here is a concise summary of the performance differences between **ArrayList** and **LinkedList** when it comes to sorting in Java.
+
+#### Comparison Summary: Sorting Performance
+
+| Feature | ArrayList | LinkedList |
+| --- | --- | --- |
+| **Internal Storage** | Uses a dynamic **array** structure. | Uses a chain of **nodes** (pointers). |
+| **Sorting Strategy** | Sorts the internal array **directly**. | Must be **converted to an array** first, sorted, then converted back. |
+| **Extra Overhead** | **Zero.** No conversion necessary. | **Low.** The time taken to convert is tiny compared to the sort. |
+| **Final Efficiency** | High. | **Equivalent** to ArrayList (the difference is usually negligible). |
+| **Source of Truth** | Directly utilizes the JDK's optimized `Arrays.sort()` logic. | Relies on the same logic after the conversion step. |
+
+
+**Key Takeaway**
+
+While the **LinkedList** technically does more "work" by switching data formats, the actual mathematical process of **sorting** is so much more demanding that the time spent converting the list is essentially invisible in most real-world applications.
+
+
