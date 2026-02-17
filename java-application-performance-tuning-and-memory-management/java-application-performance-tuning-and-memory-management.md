@@ -1531,3 +1531,116 @@ Certainly! Here is a concise summary of the performance differences between **Ar
 While the **LinkedList** technically does more "work" by switching data formats, the actual mathematical process of **sorting** is so much more demanding that the time spent converting the list is essentially invisible in most real-world applications.
 
 
+
+## Section 21: Chapter 21 - How Maps Work
+### 108. How Hashmaps Work - part 1
+- HashMap (16 elements on create)
+- LinkedHashMap
+- TreeMap
+
+**HashMap Essentials**    
+*   **Structure:** Stores data using **Unique Keys** and **Values**.
+*   **Unique Keys:** Each key points to exactly one value; no duplicates allowed.
+*   **Constant Speed:** Retrieval time stays the **same regardless of size**.
+*   **Performance:** It is just as fast with 10 items as it is with a billion.
+*   **Initial Setup:** Starts in memory as an array of **16 buckets**.
+*   **Key Conversion:** Java turns your key into an **integer**.
+*   **Modulus Math:** Uses the remainder of a division to find the right bucket.
+*   **Bucket Choice:** For 16 buckets, the index will always be between 0 and 15.
+*   **Efficiency:** Good **hash codes** are critical for optimal map performance.
+*   **Variations:** Other types include **LinkedHashMap**, **Hashtable**, and **TreeMap**.
+
+
+### 109. The role of the Hashcode
+- when the key is a string, we need convert to a integer ans after uses a module (the rest of division) by 16. 
+- Use"text".hashCode() to convert
+
+
+### 110. How Hashmaps Work - part 2
+**HashMap Advanced Mechanics**
+- **Bucket Structure:** Each bucket is not a single slot but actually a **linked list** of objects.
+- **Collisions:** Multiple objects with different hash codes can end up in the **same bucket**.
+- **Unique Keys:** While multiple items can share a bucket, a map **never allows duplicate keys**.
+- **Initial Size:** A HashMap always starts with an **initial capacity of 16 buckets**.
+- **The "Load Factor":** By default, a HashMap is considered full when **75% (3/4)** of buckets are used.
+- **Growth Pattern:** When it gets full, a HashMap **doubles its size** (whereas an ArrayList grows by only 50%).
+- **Re-hashing:** During resizing, the JVM must **re-evaluate every single item** to determine its new bucket.
+- **Performance Cost:** Resizing has a **significant overhead** because items must be moved to different buckets.
+- **Linked Storage:** Every entry in the internal array is a **reference to the first item** in that bucket's list.
+
+
+### 111. Specifying the initial size and factor of a HashMap
+- first parameter is the size
+- the second parameter is the factor
+- Bigger initial size and a larger initial fill factor will speed up the adding of items
+```java
+package main;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        Date start = new Date();
+        Map<Integer, Book> books = new HashMap<Integer, Book>(500000, 0.9f);
+        for (int i = 0; i < 10000000; i++) {
+            books.put(i, new Book(i, "Jane Eyre", "Charlotte Bronte", 14.99));
+        }
+        
+        Date end = new Date();
+        System.out.println("Elapsed time was " + (end.getTime() - start.getTime()) + " ms.");
+    }
+}
+```
+
+
+### 112. HashMap Performance
+- We've seen that a bigger initial size and a larger initial fill factor will speed up the adding of items
+- But if we want to retrieve items from a HashMap, we actually want the size to be as big as possible because we want the number of items in a linked list to be as small as possible. So actually to optimize this for the purposes of both, we probably want to put in a bigger size.
+
+
+The performance of a **HashMap** depends on the efficiency of its underlying array compared to the linked lists stored within each "bucket."
+
+**Retrieval Mechanics**    
+To find an item, Java calculates the key's **hashCode**, uses a **modulus** calculation based on the array size to find the correct bucket, and then navigates the **linked list** in that bucket to find the matching key.
+
+**Array vs. Linked List Efficiency**    
+*   **Arrays:** These are very fast because they occupy **contiguous memory** on the heap, allowing for efficient navigation to a specific place.
+*   **Linked Lists:** These are slower because the JVM must **follow each pointer** sequentially (from the first or last entry) to reach a specific item.
+
+**Optimization Strategies**    
+To maximize retrieval speed, you want the **underlying array to be as large as possible** to keep the number of items in each linked list as small as possible.
+*   **Bigger Initial Size:** Starting with a large size (e.g., 10 million) reduces the need for resizing and keeps buckets shallow.
+*   **Smaller Fill (Load) Factor:** Using a smaller factor, such as **0.6**, ensures the map grows before buckets become too crowded.
+*   **Result:** In a test with these optimized settings, adding items to a HashMap took only **307 milliseconds**, which was the fastest recorded time.
+
+
+
+### 113. The rules for Hashcodes
+
+
+
+### 114. Generating and optimising the Hashcode method
+
+
+### 115. Optimising Hashmap Performance
+- https://stackoverflow.com/questions/7115445/what-is-the-optimal-capacity-and-load-factor-for-a-fixed-size-hashmap
+
+
+
+### 116. How The LinkedHashMap Works
+- HashMap: items iterate in a "random" order
+- LinkedHAshMap: items iterate in defined order
+- In the LinkedHashMap there are 16 buckets
+
+A LinkedHashMap functions as an extension of a standard hash map, offering the unique advantage of preserving the insertion order of elements during iteration. While a typical hash map returns data in a seemingly random sequence, this version maintains a doubly linked list that runs through all entries to track their chronological addition. Despite this added structural complexity, there is no performance penalty for data retrieval because it utilizes the same bucket-based lookup logic as its parent class. The only minor trade-off for this organized behavior is a slightly higher memory footprint required to store the additional pointers that connect the elements.
+
+
+### 117. The HashTable and TreeMap
+This text evaluates two specialized Java map types by highlighting their specific use cases and inherent trade-offs. The HashTable is described as a legacy, thread-safe alternative to the HashMap, though it generally offers slower performance due to its synchronization. In contrast, the TreeMap is utilized when data must be organized according to the natural ordering of its keys, rather than the order of insertion. While useful for specific organizational needs, the author warns that TreeMaps are computationally expensive and should primarily be reserved for small datasets where sorting is a strict requirement.
+
+
+
