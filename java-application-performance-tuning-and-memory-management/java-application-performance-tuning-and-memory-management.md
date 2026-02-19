@@ -1643,4 +1643,316 @@ A LinkedHashMap functions as an extension of a standard hash map, offering the u
 This text evaluates two specialized Java map types by highlighting their specific use cases and inherent trade-offs. The HashTable is described as a legacy, thread-safe alternative to the HashMap, though it generally offers slower performance due to its synchronization. In contrast, the TreeMap is utilized when data must be organized according to the natural ordering of its keys, rather than the order of insertion. While useful for specific organizational needs, the author warns that TreeMaps are computationally expensive and should primarily be reserved for small datasets where sorting is a strict requirement.
 
 
+## Section 22: Chapter 22 - Other Coding Choices
+### 118. Introduction to how we'll compare coding options
+- primitive and Objects
+- BigDecimal vs Double
+- StringBuilder vs Concatenating String
+- Loops vs Streams
+
+[project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2022/CodingPerformance/src/main/)
+
+
+
+### 119. Comparing primitives with objects
+This lesson utilizes a structured Java project to conduct a performance comparison between primitive data types and their object counterparts. By benchmarking the time required to sum one million values, the author demonstrates that mathematical operations on primitives are significantly faster and more efficient than those involving objects. The experiment is designed with a consistent class structure that includes a warm-up period to ensure a more scientific, though simplified, analysis of execution speed. Ultimately, the text illustrates the superiority of primitive types in high-performance scenarios, reinforcing a fundamental principle of efficient software development.
+
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2022/CodingPerformance/src/main/PrimativesPerformance.java)
+```java
+package main;
+
+public class PrimativesPerformance {
+
+	private long addNumbers1(long howMany){
+		long result = 0;
+		for (long l = 0; l<=howMany; l++) {
+			result = result + 17l;
+		}
+		return (result);
+	}
+	
+	private long addNumbers2(Long howMany){
+		Long result = 0l;
+		Long adder = 17l;
+		for (long l = 0; l<=howMany; l++) {
+			result = result + adder;
+		}
+		return (result);
+	}
+	
+public void run()  {
+				
+		System.out.println("warm up period starting");
+		addNumbers1(1000l);
+		
+		System.out.println("warm up period done");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		System.out.println("measurement period starting");
+		
+		long start = System.currentTimeMillis(); 
+		addNumbers1(1000000l);
+		long end = System.currentTimeMillis();
+		System.out.println("measurement period done");
+		System.out.println("time taken to add 1,000000 longs: " + (end - start) + " milliseconds");
+	}
+}
+```
+Primitive are faster than Objects
+
+Com base nas novas imagens enviadas, aqui está a estrutura detalhada dos itens solicitado:
+
+
+
+### 120. Comparing BigDecimals with Doubles
+This source examines the computational trade-offs between different numeric types in Java, specifically testing the performance gap between BigDecimals and Doubles. Through a series of benchmarks adding one million numbers, the author demonstrates that BigDecimals are consistently slower because they must manage complex metadata regarding scale and precision. Even when the calculation involves simple whole numbers, the overhead of the BigDecimal class results in higher processing times compared to the more efficient Double object. Ultimately, the text serves as a cautionary guide for developers, suggesting that while BigDecimals offer high accuracy, one should prioritize primitive doubles whenever the specialized precision of the larger class is not strictly required for the task.
+
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2022/CodingPerformance/src/main/BigDecimalPerformance.java)
+
+```java
+package main;
+import java.math.BigDecimal;
+
+public class BigDecimalPerformance {
+
+	private BigDecimal addNumbers1(long howMany){
+		BigDecimal result = BigDecimal.ZERO;
+		BigDecimal adder = new BigDecimal(17);
+		for (long l = 0; l<=howMany; l++) {
+			result = result.add(adder);
+		}
+		return (result);
+	}
+	
+	private BigDecimal addNumbers2(long howMany){
+		Double result = 0d;
+		Double adder = 17d;
+		for (long l = 0; l<=howMany; l++) {
+			result = result + adder;
+		}
+		return (new BigDecimal(result));
+	}
+	
+public void run()  {
+				
+		System.out.println("warm up period starting");
+		addNumbers2(1000l);
+		
+		System.out.println("warm up period done");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		System.out.println("measurement period starting");
+		
+		long start = System.currentTimeMillis(); 
+		addNumbers2(1000000l);
+		long end = System.currentTimeMillis();
+		System.out.println("measurement period done");
+		System.out.println("time taken to add 1,000,000 numbers: " + (end - start) + " milliseconds");
+	}
+}
+```
+
+
+### 121. Using the StringBuilder
+When building strings in Java, using a StringBuilder is generally superior to manual concatenation because it modifies an internal byte array rather than creating numerous temporary objects, leading to significant performance gains. Through code demonstrations, it is clear that repeatedly adding to a string variable is inefficient, yet the Java compiler includes a clever optimization that bridges this gap. If multiple elements are combined in a single line of code, the compiler automatically converts that instruction into a StringBuilder operation behind the scenes. Consequently, developers can achieve maximum efficiency with cleaner, more readable code by either explicitly using a StringBuilder for complex logic or leveraging single-line concatenations for simpler tasks.
+
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2022/CodingPerformance/src/main/StringBuilderPerformance.java)
+```java
+package main;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class StringBuilderPerformance {
+
+	String[] firstNames = {"Adam","Bill","Carey","Delia","Emma","Frank","Gillian","Harold"};
+	String[] middleNames = {"Irene","Jill","Kevin","Leanne","Mike","Nick","Orphelia","Pete"};
+	String[] surnames = {"Green","White","Black","Brown","Purple","Yellow","Pink","Orange"};
+	
+	private String generateNames1() {
+		Random r = new Random();
+		String result = firstNames[r.nextInt(8)];
+		result = result + " ";
+		result = result + middleNames[r.nextInt(8)];
+		result = result + " ";
+		result = result + surnames[r.nextInt(8)];
+		result = result + " and ";
+		result = result + firstNames[r.nextInt(8)];
+		result = result + " ";
+		result = result + middleNames[r.nextInt(8)];
+		result = result + " ";
+		result = result + surnames[r.nextInt(8)];
+		return (result);
+	}
+	
+	private String generateNames2() {
+		Random r = new Random();
+		StringBuilder sb = new StringBuilder();
+		sb.append(firstNames[r.nextInt(8)]);
+		sb.append(" ");
+		sb.append(middleNames[r.nextInt(8)]);
+		sb.append(" ");
+		sb.append(surnames[r.nextInt(8)]);
+		sb.append(" and ");
+		sb.append(firstNames[r.nextInt(8)]);
+		sb.append(" ");
+		sb.append(middleNames[r.nextInt(8)]);
+		sb.append(" ");
+		sb.append(surnames[r.nextInt(8)]);
+		return sb.toString();
+	}
+	
+	private String generateNames3() {
+		Random r = new Random();
+		String result = firstNames[r.nextInt(8)] + " " + middleNames[r.nextInt(8)] +  " " + surnames[r.nextInt(8)] 
+				+ " and " + firstNames[r.nextInt(8)] + " " + middleNames[r.nextInt(8)] + " "+ surnames[r.nextInt(8)];
+		return (result);
+	}
+		
+public void run()  {
+				
+		System.out.println("warm up period starting");
+		for (int i=1; i < 50000; i++)
+			generateNames3();
+		
+		System.out.println("warm up period done");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		System.out.println("measurement period starting");
+		
+		long start = System.currentTimeMillis(); 
+				for (int i=1; i < 500000; i++)
+					generateNames3();
+		long end = System.currentTimeMillis();
+		System.out.println("measurement period done");
+		System.out.println("time taken to generate 500,000 names: " + (end - start) + " milliseconds");
+	}
+}
+```
+
+### 122. Comparing loops and streams
+This passage evaluates the performance differences between traditional Java loops and modern streams by measuring the time required to process a large collection of data. While the author demonstrates that a standard loop can be faster than a basic sequential stream, they emphasize that code complexity does not equal efficiency, as attempts to optimize streams into single transformations often yield "disastrous" results. The most significant finding is that parallel streams offer superior performance because they leverage multiple CPU threads to handle tasks simultaneously. Ultimately, the text serves as a reminder that developers should test their specific scenarios rather than assuming one approach is inherently better, as the ideal choice depends on both the hardware and the nature of the data transformation.
+
+- [project link](./PracticalsAndCode/End%20Of%20Chapter%20Workspaces/Chapter%2022/CodingPerformance/src/main/LoopPerformance.java)
+
+```java
+package main;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
+
+public class LoopPerformance {
+
+		String[] firstNames = {"Adam","Bill","Carey","Delia","Emma","Frank","Gillian","Harold"};
+		String[] middleNames = {"Irene","Jill","Kevin","Leanne","Mike","Nick","Orphelia","Pete"};
+		String[] surnames = {"Green","White","Black","Brown","Purple","Yellow","Pink","Orange"};
+		
+		private String generateName() {
+			Random r = new Random();
+			String result = firstNames[r.nextInt(8)] + " " + middleNames[r.nextInt(8)] + " " + surnames[r.nextInt(8)];
+				return (result);
+		}
+		
+	private long calculateLength1(List<String> names) {
+		long length = 0;
+		for (String name : names) {
+			long nameLength = name.length();
+			if (nameLength > 9) 
+				length = length + name.length();
+		}
+		System.out.println(length);
+		return length;
+	}
+	
+	private long calculateLength2(List<String> names) {
+		long length = 0;
+		
+		length = names.stream().mapToInt(s -> s.length()).filter(l -> l > 9) .sum();
+		System.out.println(length);
+		return length;
+	}
+
+	private long calculateLength3(List<String> names) {
+		long length = 0;
+		
+		length = names.stream().flatMapToInt(s -> IntStream.of(s.length() > 9 ? s.length() : null)).sum();
+		System.out.println(length);
+		return length;
+	}
+	
+	private long calculateLength4(List<String> names) {
+		long length = 0;
+		
+		length = names.parallelStream().mapToInt(s -> s.length()).filter(l -> l > 9) .sum();
+		System.out.println(length);
+		return length;
+	}
+		
+	public void run()  {
+		
+		List<String> names = new ArrayList<String>();
+		for (int i=1; i < 5000000; i++)
+			names.add(generateName());
+					
+		System.out.println("warm up period starting");
+		calculateLength4(names);
+			
+		System.out.println("warm up period done");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+		}
+		
+		System.out.println("measurement period starting");
+		long start = System.currentTimeMillis(); 
+		calculateLength4(names);		
+		long end = System.currentTimeMillis();
+		System.out.println("measurement period done");
+		System.out.println("time taken to loop through 5,000,000 strings: " + (end - start) + " milliseconds");
+	}
+}
+```
+
+
+### 123. A note on logging
+Imagine you have a piece of code that logs information when an error happens. To build that log message, your program might have to do some "work," like looking up the current user or identifying a specific terminal. 
+
+The problem is that even if you have configured your logger to ignore "info" messages and only show "severe" errors, Java still performs all that work to build the message before it realizes it doesn't need to print it. This wastes CPU power and creates unnecessary objects that the garbage collector eventually has to clean up.
+
+To fix this, you can wrap your log statement in an **`if` statement** using a check like `isLoggable`. This tells the computer: "Only do the work to gather this information if the logger is actually set to record it". 
+
+
+```java
+package main;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class LoggingExample {
+
+    Logger logger = Logger.getLogger("My Logger");
+
+    public void exampleMethod() {
+
+        try {
+            
+        }
+        catch (NumberFormatException e) {
+            if (logger.isLoggable(Level.INFO)) {
+                logger.log(Level.INFO, "NFE in exampleMethod. "
+                    + "error was : " + e.getMessage() +
+                    " user was : " + currentUser.getId() + " " + currentUser.getName() +
+                    " system was : " + currentTerminal.getId() + " " + currentTerminal.getLocationName());
+            }
+        }
+    }
+}
+```
 
