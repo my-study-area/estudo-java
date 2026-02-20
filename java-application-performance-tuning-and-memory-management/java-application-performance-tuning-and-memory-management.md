@@ -1956,3 +1956,44 @@ public class LoggingExample {
 }
 ```
 
+## Section 23: Chapter 23 - GraalVM
+### 124. What is GraalVM?
+- https://www.graalvm.org/
+- alternative JVM
+- alternative java compiler
+- native compiler (no JVM required)
+
+
+### 125. Installing GraalVM
+using ASDF: asdf install java graalvm-community-21.0.2
+
+
+### 126. Using the Graal Virtual Machine
+java Main.java
+
+javac Main
+
+- Compiler with JDK and ran with JDK with 13,389
+- Compiler with JDK and ran with grallvm 13,188
+
+
+
+### 127. Using the Graal Compiler
+- Compiler with GraalVM and ran with GraalVM 12,777
+- Compiler with GraalVM and ran with JDK 13,204
+
+
+
+### 128. Native image building with Graal
+- compile with native image with 11,116
+
+
+
+### 129. Using the Graal experimental features within OpenJDK
+- Using the Graal compiler with OpenJDK 11 (Linux only)
+- -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler
+```java
+java -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler Main
+```
+
+
