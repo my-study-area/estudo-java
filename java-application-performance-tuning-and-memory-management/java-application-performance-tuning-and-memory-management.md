@@ -1849,13 +1849,13 @@ import java.util.Random;
 import java.util.stream.IntStream;
 
 public class LoopPerformance {
-
-		String[] firstNames = {"Adam","Bill","Carey","Delia","Emma","Frank","Gillian","Harold"};
+  
+  String[] firstNames = {"Adam","Bill","Carey","Delia","Emma","Frank","Gillian","Harold"};
 		String[] middleNames = {"Irene","Jill","Kevin","Leanne","Mike","Nick","Orphelia","Pete"};
 		String[] surnames = {"Green","White","Black","Brown","Purple","Yellow","Pink","Orange"};
 		
 		private String generateName() {
-			Random r = new Random();
+      Random r = new Random();
 			String result = firstNames[r.nextInt(8)] + " " + middleNames[r.nextInt(8)] + " " + surnames[r.nextInt(8)];
 				return (result);
 		}
@@ -1872,7 +1872,7 @@ public class LoopPerformance {
 	}
 	
 	private long calculateLength2(List<String> names) {
-		long length = 0;
+    long length = 0;
 		
 		length = names.stream().mapToInt(s -> s.length()).filter(l -> l > 9) .sum();
 		System.out.println(length);
@@ -1896,11 +1896,11 @@ public class LoopPerformance {
 	}
 		
 	public void run()  {
-		
+    
 		List<String> names = new ArrayList<String>();
 		for (int i=1; i < 5000000; i++)
 			names.add(generateName());
-					
+    
 		System.out.println("warm up period starting");
 		calculateLength4(names);
 			
@@ -1908,7 +1908,7 @@ public class LoopPerformance {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-		}
+      }
 		
 		System.out.println("measurement period starting");
 		long start = System.currentTimeMillis(); 
@@ -1937,12 +1937,12 @@ import java.util.logging.Logger;
 
 public class LoggingExample {
 
-    Logger logger = Logger.getLogger("My Logger");
+  Logger logger = Logger.getLogger("My Logger");
 
     public void exampleMethod() {
 
-        try {
-            
+      try {
+        
         }
         catch (NumberFormatException e) {
             if (logger.isLoggable(Level.INFO)) {
@@ -1997,3 +1997,22 @@ java -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler Mai
 ```
 
 
+## Section 24: Chapter 24 - Using Other JVM Languages
+### 130. The principles of using other JVM Languages
+- [project link](./PracticalsAndCode/Starting%20Workspaces/java11/Chapter%2024/)
+- 
+
+
+### 131. Looking at bytecode with javap
+- `javap -v` converts the bytecode to code
+- 
+
+
+
+### 132. Disassembling bytecode back to Java
+- https://www.benf.org/other/cfr/
+- java -jar cfr-x.xxx.jar KotlinMain.class
+
+
+## Certificate
+https://www.udemy.com/certificate/UC-746e0d7d-3104-4918-b6d9-d7d68c225534/
